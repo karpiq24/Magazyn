@@ -15,6 +15,8 @@ namespace Magazyn
         public int vat;
         public bool zapis, wczyt;
         public string firma;
+        public string IC_token;
+        public string IC_number;
         public ustawienia()
         {
             InitializeComponent();
@@ -43,11 +45,23 @@ namespace Magazyn
             checkBox1.Checked = zapis;
             checkBox2.Checked = wczyt;
             textBox1.Text = firma;
+            textBox2.Text = IC_number;
+            textBox3.Text = IC_token;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            IC_number = textBox2.Text;
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+            IC_token = textBox3.Text;
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)

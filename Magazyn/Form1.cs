@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.IO;
 using System.Xml.Serialization;
 using Excel = Microsoft.Office.Interop.Excel;
+using System.Xml;
+using System.Globalization;
 
 namespace Magazyn
 {
@@ -56,6 +58,8 @@ namespace Magazyn
                 settings.wczyt = bool.Parse(r.ReadLine());
                 settings.firma = r.ReadLine();
                 wlaczony = int.Parse(r.ReadLine());
+                settings.IC_token = r.ReadLine();
+                settings.IC_number = r.ReadLine();
                 wlaczony++;
                 r.Close();
 
@@ -242,8 +246,10 @@ namespace Magazyn
                 }
             }
             else
+            {
                 wlaczony--;
-            zapiszUst();
+                zapiszUst();
+            }
         }
 
         //Zapisywanie bazy
@@ -290,6 +296,8 @@ namespace Magazyn
             wr.WriteLine(settings.wczyt);
             wr.WriteLine(settings.firma);
             wr.WriteLine(wlaczony);
+            wr.WriteLine(settings.IC_token);
+            wr.WriteLine(settings.IC_number);
             wr.Flush();
             wr.Close();
         }
@@ -835,6 +843,82 @@ namespace Magazyn
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void synchronizacjaZInterCarsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var serverUrl = "https://katalog.intercars.com.pl/api/v2/External/GetInvoices?from=" + "20030601" + "&to=" + "20030901";
+
+                var client = new System.Net.WebClient();
+                client.Headers["kh_kod"] = settings.IC_number;
+                client.Headers["token"] = settings.IC_token;
+                string response = client.DownloadString(serverUrl);
+
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(response);
+                XmlNodeList invoices = xmlDoc.GetElementsByTagName("nag");
+                foreach (XmlElement invoice in invoices)
+                {
+                    string id = invoice.GetElementsByTagName("id")[0].InnerText;
+                    string number = invoice.GetElementsByTagName("numer")[0].InnerText;
+
+                    if(faktury.Exists(x => x.nr_faktury == number))
+                    {
+                        MessageBox.Show("Jest już taka faktura");
+                    }
+                    else
+                    {
+                        faktura nowa_faktura = new faktura();
+                        nowa_faktura.nr_faktury = number;
+                        string data = invoice.GetElementsByTagName("dat_w")[0].InnerText;
+                        nowa_faktura.data = new DateTime(int.Parse(data.Substring(0, 4)), int.Parse(data.Substring(4, 2)), int.Parse(data.Substring(6, 2)));
+                        nowa_faktura.dostawca = "Inter Cars";
+
+                        nowa_faktura.wartosc = double.Parse(invoice.GetElementsByTagName("war_n")[0].InnerText, CultureInfo.InvariantCulture);
+                        nowa_faktura.przedmioty = new List<rzecz>();
+
+                        serverUrl = "https://katalog.intercars.com.pl/api/v2/External/GetInvoice?id=" + id;
+
+                        client = new System.Net.WebClient();
+                        client.Headers["kh_kod"] = settings.IC_number;
+                        client.Headers["token"] = settings.IC_token;
+                        response = client.DownloadString(serverUrl);
+
+                        XmlDocument xmlDoc2 = new XmlDocument();
+                        xmlDoc2.LoadXml(response);
+                        XmlNodeList wares = xmlDoc2.GetElementsByTagName("poz");
+
+                        foreach (XmlElement item in wares)
+                        {
+                            string index = item.GetElementsByTagName("indeks")[0].InnerText;
+                            if (!towary.Exists(x => x.indeks == index))
+                            {
+                                towar nowy_towar = new towar();
+                                nowy_towar.indeks = index;
+                                nowy_towar.nazwa = item.GetElementsByTagName("nazwa")[0].InnerText;
+                                nowy_towar.uwagi = item.GetElementsByTagName("opis")[0].InnerText;
+                                towary.Add(nowy_towar);
+                            }
+                            rzecz nowa_rzecz = new rzecz();
+                            nowa_rzecz.indeks = index;
+                            nowa_rzecz.ile = uint.Parse(item.GetElementsByTagName("ilosc")[0].InnerText);
+                            nowa_rzecz.cena = double.Parse(item.GetElementsByTagName("cena")[0].InnerText, CultureInfo.InvariantCulture);
+                            nowa_faktura.przedmioty.Add(nowa_rzecz);
+                        }
+                        faktury.Add(nowa_faktura);
+                    }                    
+                }
+                towary = towary.OrderBy(x => x.indeks).ToList();
+                odswiezT();
+                faktury = faktury.OrderBy(x => x.dostawca).ToList();
+                odswiezF();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         private void sprawdźOstatnieCenyZakupówToolStripMenuItem_Click(object sender, EventArgs e)

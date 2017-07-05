@@ -79,6 +79,7 @@
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
+            this.synchronizacjaZInterCarsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -156,7 +157,8 @@
             // 
             this.zaawansowaneToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.sprawdźOstatnieCenyZakupówToolStripMenuItem,
-            this.obliczWartośćMagazynuToolStripMenuItem});
+            this.obliczWartośćMagazynuToolStripMenuItem,
+            this.synchronizacjaZInterCarsToolStripMenuItem});
             this.zaawansowaneToolStripMenuItem.Name = "zaawansowaneToolStripMenuItem";
             this.zaawansowaneToolStripMenuItem.Size = new System.Drawing.Size(155, 22);
             this.zaawansowaneToolStripMenuItem.Text = "Zaawansowane";
@@ -502,6 +504,13 @@
             this.timer2.Interval = 500;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
+            // synchronizacjaZInterCarsToolStripMenuItem
+            // 
+            this.synchronizacjaZInterCarsToolStripMenuItem.Name = "synchronizacjaZInterCarsToolStripMenuItem";
+            this.synchronizacjaZInterCarsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.synchronizacjaZInterCarsToolStripMenuItem.Text = "Synchronizacja z Inter Cars";
+            this.synchronizacjaZInterCarsToolStripMenuItem.Click += new System.EventHandler(this.synchronizacjaZInterCarsToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -587,6 +596,7 @@
         private System.Windows.Forms.ToolStripMenuItem sprawdźOstatnieCenyZakupówToolStripMenuItem;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.ToolStripMenuItem obliczWartośćMagazynuToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem synchronizacjaZInterCarsToolStripMenuItem;
     }
 }
 
