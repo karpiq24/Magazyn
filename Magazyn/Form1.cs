@@ -847,78 +847,172 @@ namespace Magazyn
 
         private void synchronizacjaZInterCarsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            IC_chooseDates dates = new IC_chooseDates();
+            dates.ShowDialog();
+
+            if (!dates.sync)
+                return;
+
+            int startYear;
+            int endYear;
+
+            if (dates.full)
+            {
+                if (MessageBox.Show("Na pewno uruchomić pełną synchronizację?", "Ostrzeżenie", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                    return;
+                deleteIC();
+                startYear = 2003;
+                endYear = DateTime.Now.Year;
+            }
+            else
+            {
+                startYear = dates.start;
+                endYear = dates.end;
+            }
+
+            
+            int year = startYear;
             try
             {
-                var serverUrl = "https://katalog.intercars.com.pl/api/v2/External/GetInvoices?from=" + "20030601" + "&to=" + "20030901";
-
-                var client = new System.Net.WebClient();
-                client.Headers["kh_kod"] = settings.IC_number;
-                client.Headers["token"] = settings.IC_token;
-                string response = client.DownloadString(serverUrl);
-
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(response);
-                XmlNodeList invoices = xmlDoc.GetElementsByTagName("nag");
-                foreach (XmlElement invoice in invoices)
+                while (year <= endYear)
                 {
-                    string id = invoice.GetElementsByTagName("id")[0].InnerText;
-                    string number = invoice.GetElementsByTagName("numer")[0].InnerText;
-
-                    if(faktury.Exists(x => x.nr_faktury == number))
+                    for (int quarter = 0; quarter < 4; quarter++)
                     {
-                        MessageBox.Show("Jest już taka faktura");
-                    }
-                    else
-                    {
-                        faktura nowa_faktura = new faktura();
-                        nowa_faktura.nr_faktury = number;
-                        string data = invoice.GetElementsByTagName("dat_w")[0].InnerText;
-                        nowa_faktura.data = new DateTime(int.Parse(data.Substring(0, 4)), int.Parse(data.Substring(4, 2)), int.Parse(data.Substring(6, 2)));
-                        nowa_faktura.dostawca = "Inter Cars";
+                        var serverUrl = "https://katalog.intercars.com.pl/api/v2/External/GetInvoices?from=" + year.ToString() + (3*quarter+1).ToString("00") + "01" + "&to=" + year.ToString() + (3 * quarter + 3).ToString("00") + DateTime.DaysInMonth(year, (3 * quarter + 3));
 
-                        nowa_faktura.wartosc = double.Parse(invoice.GetElementsByTagName("war_n")[0].InnerText, CultureInfo.InvariantCulture);
-                        nowa_faktura.przedmioty = new List<rzecz>();
-
-                        serverUrl = "https://katalog.intercars.com.pl/api/v2/External/GetInvoice?id=" + id;
-
-                        client = new System.Net.WebClient();
+                        var client = new System.Net.WebClient();
                         client.Headers["kh_kod"] = settings.IC_number;
                         client.Headers["token"] = settings.IC_token;
-                        response = client.DownloadString(serverUrl);
+                        string response = client.DownloadString(serverUrl);
 
-                        XmlDocument xmlDoc2 = new XmlDocument();
-                        xmlDoc2.LoadXml(response);
-                        XmlNodeList wares = xmlDoc2.GetElementsByTagName("poz");
-
-                        foreach (XmlElement item in wares)
+                        XmlDocument xmlDoc = new XmlDocument();
+                        xmlDoc.LoadXml(response);
+                        XmlNodeList invoices = xmlDoc.GetElementsByTagName("nag");
+                        foreach (XmlElement invoice in invoices)
                         {
-                            string index = item.GetElementsByTagName("indeks")[0].InnerText;
-                            if (!towary.Exists(x => x.indeks == index))
+                            string id = invoice.GetElementsByTagName("id")[0].InnerText;
+                            string number = invoice.GetElementsByTagName("numer")[0].InnerText;
+
+                            if (faktury.Exists(x => x.nr_faktury == number))
                             {
-                                towar nowy_towar = new towar();
-                                nowy_towar.indeks = index;
-                                nowy_towar.nazwa = item.GetElementsByTagName("nazwa")[0].InnerText;
-                                nowy_towar.uwagi = item.GetElementsByTagName("opis")[0].InnerText;
-                                towary.Add(nowy_towar);
+                                Console.WriteLine("Invoice " + number + "exists");
                             }
-                            rzecz nowa_rzecz = new rzecz();
-                            nowa_rzecz.indeks = index;
-                            nowa_rzecz.ile = uint.Parse(item.GetElementsByTagName("ilosc")[0].InnerText);
-                            nowa_rzecz.cena = double.Parse(item.GetElementsByTagName("cena")[0].InnerText, CultureInfo.InvariantCulture);
-                            nowa_faktura.przedmioty.Add(nowa_rzecz);
+                            else
+                            {
+
+                                faktura nowa_faktura = new faktura();
+                                nowa_faktura.nr_faktury = number;
+                                string data = invoice.GetElementsByTagName("dat_w")[0].InnerText;
+                                nowa_faktura.data = new DateTime(int.Parse(data.Substring(0, 4)), int.Parse(data.Substring(4, 2)), int.Parse(data.Substring(6, 2)));
+                                nowa_faktura.dostawca = "Inter Cars";
+
+                                nowa_faktura.wartosc = double.Parse(invoice.GetElementsByTagName("war_n")[0].InnerText, CultureInfo.InvariantCulture);
+                                nowa_faktura.przedmioty = new List<rzecz>();
+
+                                serverUrl = "https://katalog.intercars.com.pl/api/v2/External/GetInvoice?id=" + id;
+
+                                client = new System.Net.WebClient();
+                                client.Headers["kh_kod"] = settings.IC_number;
+                                client.Headers["token"] = settings.IC_token;
+                                response = client.DownloadString(serverUrl);
+
+                                XmlDocument xmlDoc2 = new XmlDocument();
+                                xmlDoc2.LoadXml(response);
+                                XmlNodeList wares = xmlDoc2.GetElementsByTagName("poz");
+
+                                foreach (XmlElement item in wares)
+                                {
+                                    string index = item.GetElementsByTagName("indeks")[0].InnerText;
+                                    if (!towary.Exists(x => x.indeks == index))
+                                    {
+                                        towar nowy_towar = new towar();
+                                        nowy_towar.indeks = index;
+                                        nowy_towar.nazwa = UTF8(item.GetElementsByTagName("nazwa")[0].InnerText);
+                                        nowy_towar.uwagi = UTF8(item.GetElementsByTagName("opis")[0].InnerText);
+                                        towary.Add(nowy_towar);
+                                        Console.WriteLine("Adding ware " + index);
+                                    }
+                                    rzecz nowa_rzecz = new rzecz();
+                                    nowa_rzecz.indeks = index;
+                                    nowa_rzecz.ile = uint.Parse(item.GetElementsByTagName("ilosc")[0].InnerText);
+                                    nowa_rzecz.cena = double.Parse(item.GetElementsByTagName("cena")[0].InnerText, CultureInfo.InvariantCulture);
+                                    nowa_faktura.przedmioty.Add(nowa_rzecz);
+                                }
+                                faktury.Add(nowa_faktura);
+                                Console.WriteLine("Added invoice " + number);
+                            }
                         }
-                        faktury.Add(nowa_faktura);
-                    }                    
+                        towary = towary.OrderBy(x => x.indeks).ToList();
+                        odswiezT();
+                        faktury = faktury.OrderBy(x => x.dostawca).ToList();
+                        odswiezF();
+                    }
+                    year++;
                 }
-                towary = towary.OrderBy(x => x.indeks).ToList();
-                odswiezT();
-                faktury = faktury.OrderBy(x => x.dostawca).ToList();
-                odswiezF();
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+
+        private void deleteIC()
+        {
+            string errors = "";
+            List<string> to_delete = new List<string>();
+            bool found = false;
+            foreach (var invoice in faktury)
+            {
+                if(invoice.dostawca == "Inter Cars")
+                {
+                    foreach (var item in invoice.przedmioty)
+                    {
+                        found = false;
+                        foreach (var invoice2 in faktury)
+                        {
+                            if (invoice2.dostawca != "Inter Cars")
+                            {
+                                if (found)
+                                    break;
+
+                                foreach (var item2 in invoice2.przedmioty)
+                                {
+                                    if (found)
+                                        break;
+
+                                    if (item.indeks == item2.indeks)
+                                    {
+                                        errors += item.indeks + "\n";
+                                        found = true;
+                                    }
+                                }
+                            }
+                        }
+                        if (!found)
+                        {
+                            towary.RemoveAll(x => x.indeks == item.indeks);
+                        }
+                    }
+                    to_delete.Add(invoice.nr_faktury);
+                }                
+            }
+
+            foreach (var item in to_delete)
+            {
+                faktury.RemoveAll(x => x.nr_faktury == item);
+            }
+            odswiezF();
+            odswiezT();
+            if(errors != "")
+                MessageBox.Show(errors, "Indeksy od innego dostawcy");
+        }
+
+        private string UTF8(string strFrom)
+        {
+            byte[] bytes = Encoding.Default.GetBytes(strFrom);
+            string strTo = Encoding.UTF8.GetString(bytes);
+
+            return strTo;
         }
 
         private void sprawdźOstatnieCenyZakupówToolStripMenuItem_Click(object sender, EventArgs e)
