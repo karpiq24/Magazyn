@@ -9,7 +9,7 @@ namespace Magazyn
     public struct rzecz
     {
         public string indeks;
-        public uint ile;
+        public int ile;
         public double cena;
     }
 

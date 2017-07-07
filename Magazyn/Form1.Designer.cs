@@ -40,6 +40,7 @@
             this.zaawansowaneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sprawdźOstatnieCenyZakupówToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.obliczWartośćMagazynuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.synchronizacjaZInterCarsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.oProgramieToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zakończToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,7 +80,7 @@
             this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.timer2 = new System.Windows.Forms.Timer(this.components);
-            this.synchronizacjaZInterCarsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.kopiujIndeksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -177,6 +178,13 @@
             this.obliczWartośćMagazynuToolStripMenuItem.Text = "Oblicz wartość magazynu";
             this.obliczWartośćMagazynuToolStripMenuItem.Click += new System.EventHandler(this.obliczWartośćMagazynuToolStripMenuItem_Click);
             // 
+            // synchronizacjaZInterCarsToolStripMenuItem
+            // 
+            this.synchronizacjaZInterCarsToolStripMenuItem.Name = "synchronizacjaZInterCarsToolStripMenuItem";
+            this.synchronizacjaZInterCarsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
+            this.synchronizacjaZInterCarsToolStripMenuItem.Text = "Synchronizacja z Inter Cars";
+            this.synchronizacjaZInterCarsToolStripMenuItem.Click += new System.EventHandler(this.synchronizacjaZInterCarsToolStripMenuItem_Click);
+            // 
             // oProgramieToolStripMenuItem
             // 
             this.oProgramieToolStripMenuItem.Name = "oProgramieToolStripMenuItem";
@@ -246,7 +254,6 @@
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.ColumnClick += new System.Windows.Forms.ColumnClickEventHandler(this.listView1_ColumnClick);
-            this.listView1.SelectedIndexChanged += new System.EventHandler(this.listView1_SelectedIndexChanged);
             this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
             this.listView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listView1_KeyDown);
             this.listView1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.listView1_KeyPress);
@@ -445,29 +452,30 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.edytujToolStripMenuItem,
             this.pokażFakturyToolStripMenuItem,
+            this.kopiujIndeksToolStripMenuItem,
             this.usuńToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(146, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(153, 114);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // edytujToolStripMenuItem
             // 
             this.edytujToolStripMenuItem.Name = "edytujToolStripMenuItem";
-            this.edytujToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.edytujToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.edytujToolStripMenuItem.Text = "Edytuj";
             this.edytujToolStripMenuItem.Click += new System.EventHandler(this.edytujToolStripMenuItem_Click);
             // 
             // pokażFakturyToolStripMenuItem
             // 
             this.pokażFakturyToolStripMenuItem.Name = "pokażFakturyToolStripMenuItem";
-            this.pokażFakturyToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.pokażFakturyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.pokażFakturyToolStripMenuItem.Text = "Pokaż faktury";
             this.pokażFakturyToolStripMenuItem.Click += new System.EventHandler(this.pokażFakturyToolStripMenuItem_Click);
             // 
             // usuńToolStripMenuItem
             // 
             this.usuńToolStripMenuItem.Name = "usuńToolStripMenuItem";
-            this.usuńToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.usuńToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.usuńToolStripMenuItem.Text = "Usuń";
             this.usuńToolStripMenuItem.Click += new System.EventHandler(this.usuńToolStripMenuItem_Click);
             // 
@@ -504,12 +512,12 @@
             this.timer2.Interval = 500;
             this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
-            // synchronizacjaZInterCarsToolStripMenuItem
+            // kopiujIndeksToolStripMenuItem
             // 
-            this.synchronizacjaZInterCarsToolStripMenuItem.Name = "synchronizacjaZInterCarsToolStripMenuItem";
-            this.synchronizacjaZInterCarsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-            this.synchronizacjaZInterCarsToolStripMenuItem.Text = "Synchronizacja z Inter Cars";
-            this.synchronizacjaZInterCarsToolStripMenuItem.Click += new System.EventHandler(this.synchronizacjaZInterCarsToolStripMenuItem_Click);
+            this.kopiujIndeksToolStripMenuItem.Name = "kopiujIndeksToolStripMenuItem";
+            this.kopiujIndeksToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.kopiujIndeksToolStripMenuItem.Text = "Kopiuj indeks";
+            this.kopiujIndeksToolStripMenuItem.Click += new System.EventHandler(this.kopiujIndeksToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -597,6 +605,7 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.ToolStripMenuItem obliczWartośćMagazynuToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem synchronizacjaZInterCarsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem kopiujIndeksToolStripMenuItem;
     }
 }
 

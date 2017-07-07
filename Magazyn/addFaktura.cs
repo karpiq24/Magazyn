@@ -202,7 +202,7 @@ namespace Magazyn
                 {
                     rzecz p;
                     p.cena = double.Parse(item.SubItems[2].Text);
-                    p.ile = uint.Parse(item.SubItems[3].Text);
+                    p.ile = int.Parse(item.SubItems[3].Text);
                     p.indeks = item.Text;
                     nowa.przedmioty.Add(p);
 

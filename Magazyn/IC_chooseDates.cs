@@ -14,7 +14,7 @@ namespace Magazyn
     {
         public bool sync;
         public bool full;
-        public int start, end;
+        public DateTime start, end;
         public IC_chooseDates()
         {
             InitializeComponent();
@@ -24,13 +24,13 @@ namespace Magazyn
         {
             if (checkBox1.Checked)
             {
-                numericUpDown1.Enabled = false;
-                numericUpDown2.Enabled = false;
+                dateTimePickerFrom.Enabled = false;
+                dateTimePickerTo.Enabled = false;
             }
             else
             {
-                numericUpDown1.Enabled = true;
-                numericUpDown2.Enabled = true;
+                dateTimePickerFrom.Enabled = true;
+                dateTimePickerTo.Enabled = true;
             }
         }
 
@@ -38,8 +38,8 @@ namespace Magazyn
         {
             sync = true;
             full = checkBox1.Checked;
-            start = (int)numericUpDown1.Value;
-            end = (int)numericUpDown1.Value;
+            start = dateTimePickerFrom.Value;
+            end = dateTimePickerTo.Value;
             this.Close();
         }
 
