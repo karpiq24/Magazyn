@@ -897,14 +897,19 @@ namespace Magazyn
                 {
                     throw new Exception("Podaj numer token uwierzytelniający Inter Cars w ustawieniach.");
                 }
+
+                SyncProgress sp = new SyncProgress();
+                sp.setUpProgressBar((int)(to - from).TotalDays);
+                sp.Show();
+
                 foreach (DateTime startDate in ThreeMonths(from, to))
                 {
                     DateTime toDate = startDate.AddMonths(3).AddDays(-1);
-
                     if (toDate > to)
                     {
                         toDate = to;
                     }
+                    sp.setDates(startDate.ToShortDateString() + " - " + toDate.ToShortDateString());
                     var serverUrl = "https://katalog.intercars.com.pl/api/v2/External/GetInvoices?from=" + startDate.Year.ToString("0000") + startDate.Month.ToString("00") + startDate.Day.ToString("00") + "&to=" + toDate.Year.ToString("0000") + toDate.Month.ToString("00") + toDate.Day.ToString("00");
                     var client = new System.Net.WebClient();
                     client.Headers["kh_kod"] = settings.IC_number;
@@ -918,18 +923,21 @@ namespace Magazyn
                     {
                         string id = invoice.GetElementsByTagName("id")[0].InnerText;
                         string number = invoice.GetElementsByTagName("numer")[0].InnerText;
+                        string data = invoice.GetElementsByTagName("dat_w")[0].InnerText;
+                        DateTime inv_date = new DateTime(int.Parse(data.Substring(0, 4)), int.Parse(data.Substring(4, 2)), int.Parse(data.Substring(6, 2)));
+
+                        sp.setProgress((int)(inv_date - from).TotalDays);
 
                         if (faktury.Exists(x => x.nr_faktury == number))
                         {
-                            Console.WriteLine("Invoice " + number + "exists");
+                            sp.appendLog("Faktura " + number + " już istnieje.");
                         }
                         else
                         {
 
                             faktura nowa_faktura = new faktura();
                             nowa_faktura.nr_faktury = number;
-                            string data = invoice.GetElementsByTagName("dat_w")[0].InnerText;
-                            nowa_faktura.data = new DateTime(int.Parse(data.Substring(0, 4)), int.Parse(data.Substring(4, 2)), int.Parse(data.Substring(6, 2)));
+                            nowa_faktura.data = inv_date;
                             nowa_faktura.dostawca = "Inter Cars";
 
                             nowa_faktura.wartosc = double.Parse(invoice.GetElementsByTagName("war_n")[0].InnerText, CultureInfo.InvariantCulture);
@@ -957,7 +965,7 @@ namespace Magazyn
                                     nowy_towar.uwagi = UTF8(item.GetElementsByTagName("opis")[0].InnerText);
                                     towary.Add(nowy_towar);
                                     new_wares++;
-                                    Console.WriteLine("Adding ware " + index);
+                                    sp.appendLog("Dodano nowy towar " + index);
                                 }
                                 rzecz nowa_rzecz = new rzecz();
                                 nowa_rzecz.indeks = index;
@@ -967,17 +975,18 @@ namespace Magazyn
                             }
                             faktury.Add(nowa_faktura);
                             new_invoices++;
-                            Console.WriteLine("Added invoice " + number);
+                            sp.appendLog("Dodano nową fakturę " + number);
                         }
                     }
-                    towary = towary.OrderBy(x => x.indeks).ToList();
-                    odswiezT();
-                    faktury = faktury.OrderBy(x => x.dostawca).ToList();
-                    odswiezF();
                 }
+                towary = towary.OrderBy(x => x.indeks).ToList();
+                odswiezT();
+                faktury = faktury.OrderBy(x => x.dostawca).ToList();
+                odswiezF();
                 if (IC_lastSync < to)
                     IC_lastSync = to;
                 MessageBox.Show("Wczytano z API Inter Cars:\n\nNowe faktury: " + new_invoices + "\nNowe towary: " + new_wares, "Powiadomienie", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                sp.Close();
             }
             catch (Exception ex)
             {
