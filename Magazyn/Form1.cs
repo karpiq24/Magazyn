@@ -889,11 +889,11 @@ namespace Magazyn
 
             try
             {
-                if(settings.IC_number == "")
+                if(settings.IC_number == "" || settings.IC_number == null)
                 {
                     throw new Exception("Podaj numer klienta Inter Cars w ustawieniach.");
                 }
-                if (settings.IC_token == "")
+                if (settings.IC_token == "" || settings.IC_token == null)
                 {
                     throw new Exception("Podaj numer token uwierzytelniający Inter Cars w ustawieniach.");
                 }
@@ -979,6 +979,7 @@ namespace Magazyn
                         }
                     }
                 }
+                sp.setProgress((int)(to - from).TotalDays);
                 towary = towary.OrderBy(x => x.indeks).ToList();
                 odswiezT();
                 faktury = faktury.OrderBy(x => x.dostawca).ToList();
